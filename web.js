@@ -1,9 +1,32 @@
 var express = require('express');
+var fs = require('fs');
 
 var app = express.createServer(express.logger());
 
 app.get('/', function(request, response) {
-  response.send('Hello World 2!');
+	var filename = 'index.html';
+	fs.exists(filename, function(exists) {
+		if (exists) {
+			fs.stat(filename, function(err, stats) {
+				fs.open(filename, "r", function(err, fd)	{
+					var buffer = new Buffer(stats.size);
+					fs.read(fd, buffer, 0, buffer.length, null, function(error, bytesRead, buffer) {
+						var data = buffer.toString("utf8", 0, buffer.length);
+						response.send(data);
+						fs.close(fd);
+
+					});
+				});
+			});
+		}
+	});
+
+
+  //response.send('Hello World 2!');
+  //var content = fs.open(filename, "r", );
+  
+  //response.send(data);
+
 });
 
 var port = process.env.PORT || 5000;
